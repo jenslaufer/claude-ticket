@@ -64,17 +64,22 @@ checklist catches the ambiguity you stopped seeing.
 
 ## Try it
 
-It's a Claude Code plugin, open source, MIT:
+It's an agent plugin — host-agnostic, open source, MIT. In Claude Code:
 
 ```
-/plugin marketplace add jenslaufer/claude-ticket
+/plugin marketplace add jenslaufer/agent-ticket
 /plugin install ticket@jenslaufer
 
 /ticket users should be able to reset their password by email
 /ticket --provider github --critic rate limiting for the public API
 ```
 
-The repo is at [github.com/jenslaufer/claude-ticket](https://github.com/jenslaufer/claude-ticket).
+In OpenAI Codex, the same plugin installs via
+`codex plugin marketplace add jenslaufer/agent-ticket` and `codex plugin add ticket@jenslaufer` —
+one repo, one skill, two hosts. The precision layer doesn't care which agent runs it, just as it
+doesn't care which tracker it files into.
+
+The repo is at [github.com/jenslaufer/agent-ticket](https://github.com/jenslaufer/agent-ticket).
 Adapters are one JavaScript file each — if your team lives in Linear or GitLab, the contract is
 documented and small.
 

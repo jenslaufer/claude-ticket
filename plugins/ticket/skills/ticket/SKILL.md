@@ -14,6 +14,9 @@ Two strictly separated layers:
 
 All scripts are Node.js (>= 18) built-ins only — no bash, jq, curl, or npm installs.
 
+This skill is host-agnostic (Claude Code, Codex, any Agent-Skills host). `<skill-dir>` below
+stands for this skill's base directory, which the host announces when the skill loads.
+
 ## Arguments
 
 Parse these from the user's request / `$ARGUMENTS`; everything else is the ticket idea itself.
@@ -25,7 +28,7 @@ Parse these from the user's request / `$ARGUMENTS`; everything else is the ticke
 | `--out FILE` | Write the markdown ticket to FILE (markdown provider only) |
 | `--dry-run` | Render the exact payload/command, write nothing external |
 | `--check` | Read-only setup check: verify credentials and target, create nothing |
-| `--critic` | Quality-gate the ticket with the `ticket-critic` agent before filing |
+| `--critic` | Quality-gate the ticket against the fixed rubric before filing |
 
 If the user names a system without a flag ("file this in Jira", "as a GitHub issue"), map it to the
 provider yourself. If no system is mentioned, use `markdown` and say so.
@@ -40,9 +43,12 @@ provider yourself. If no system is mentioned, use `markdown` and say so.
    Produce one JSON object. If a required field cannot be filled, ask the user **one** focused
    question instead of guessing — then continue.
 
-3. **Quality gate (only with `--critic`).** Launch the `ticket-critic` agent (Agent tool) with the full
-   ticket JSON as input. It returns `scores` (10 metrics, 0–100) and `feedback`.
-   - If any metric < 70: fix exactly the flagged issues in the model, re-run the critic.
+3. **Quality gate (only with `--critic`).** Score the ticket against the fixed rubric in
+   `references/critic-rubric.md`: if your host provides a `ticket-critic` subagent (Claude Code),
+   launch it with the full ticket JSON; otherwise read the rubric and apply it mechanically
+   yourself in a separate pass — checklist only, no opinions. Either way the result is `scores`
+   (10 metrics, 0–100) and `feedback`.
+   - If any metric < 70: fix exactly the flagged issues in the model, re-score.
    - Repeat until all metrics ≥ 70 (max 3 rounds; then present the best version and the remaining
      feedback honestly).
    - Show the user the final score table.
@@ -54,7 +60,7 @@ provider yourself. If no system is mentioned, use `markdown` and say so.
 5. **Emit.** Save the model to a temp file, then:
 
    ```
-   node "${CLAUDE_PLUGIN_ROOT}/skills/ticket/scripts/ticket_emit.js" \
+   node "<skill-dir>/scripts/ticket_emit.js" \
      --provider <name> [--dry-run] [--repo OWNER/NAME] [--out FILE] < ticket.json
    ```
 
@@ -103,7 +109,7 @@ missing/invalid config:
 3. **Verify read-only:**
 
    ```
-   node "${CLAUDE_PLUGIN_ROOT}/skills/ticket/scripts/ticket_emit.js" --check --provider <name>
+   node "<skill-dir>/scripts/ticket_emit.js" --check --provider <name>
    ```
 
    The check creates nothing. It prints `{"provider","ok","detail"}`; exit 0 means verified.

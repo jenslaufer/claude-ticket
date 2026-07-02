@@ -1,7 +1,8 @@
 # ticket
 
-A Claude Code plugin that turns a rough idea into a precise, well-scoped ticket — and files it
-into a real ticketing system through a pluggable provider layer.
+An agent plugin that turns a rough idea into a precise, well-scoped ticket — and files it
+into a real ticketing system through a pluggable provider layer. Works in Claude Code and
+OpenAI Codex (and any Agent-Skills host).
 
 Coding agents made writing code cheap. The expensive part moved upstream: deciding *what* to build,
 precisely enough that an agent (or a human) can execute without guessing. A vague ticket used to be
@@ -27,9 +28,18 @@ The Canonical Ticket Model is the contract between them.
 
 ## Install
 
+Claude Code:
+
 ```
-/plugin marketplace add jenslaufer/claude-ticket
+/plugin marketplace add jenslaufer/agent-ticket
 /plugin install ticket@jenslaufer
+```
+
+Codex:
+
+```
+codex plugin marketplace add jenslaufer/agent-ticket
+codex plugin add ticket@jenslaufer
 ```
 
 ## Use
@@ -68,8 +78,8 @@ node skills/ticket/scripts/ticket_emit.js --check --provider jira
 ```
 
 The check is strictly read-only and tells you exactly what to fix
-("auth ok, but project not found — check JIRA_PROJECT_KEY"). In Claude Code, just say
-`/ticket setup jira` — the skill walks you through it and runs the check for you.
+("auth ok, but project not found — check JIRA_PROJECT_KEY"). Or just tell your agent
+`ticket setup jira` — the skill walks you through it and runs the check for you.
 
 ## Add your own ticket system
 
@@ -84,7 +94,7 @@ Working in a checkout of this repo, paste this prompt into your coding agent and
 replace `<SYSTEM>` with your tracker (Linear, GitLab, Azure DevOps, ...):
 
 ```text
-Add a <SYSTEM> adapter to the claude-ticket plugin in this repo.
+Add a <SYSTEM> adapter to the agent-ticket plugin in this repo.
 
 1. Read plugins/ticket/skills/ticket/references/adapters.md — it defines the
    adapter contract. Follow it exactly.

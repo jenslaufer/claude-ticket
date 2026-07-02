@@ -1,14 +1,26 @@
-# claude-ticket
+# agent-ticket
 
-Claude Code plugin marketplace with one plugin: **[ticket](plugins/ticket/)** — turn a rough idea
+Agent-plugin marketplace with one plugin: **[ticket](plugins/ticket/)** — turn a rough idea
 into a precise, well-scoped ticket and file it into a real ticketing system (GitHub Issues, Jira,
-Markdown) through a pluggable provider layer.
+GitLab, Markdown) through a pluggable provider layer.
+
+Host-agnostic: works in **Claude Code** and **OpenAI Codex** (and any Agent-Skills host).
+The core is plain Node.js — no host-specific code paths.
 
 ## Install
 
+Claude Code:
+
 ```
-/plugin marketplace add jenslaufer/claude-ticket
+/plugin marketplace add jenslaufer/agent-ticket
 /plugin install ticket@jenslaufer
+```
+
+Codex:
+
+```
+codex plugin marketplace add jenslaufer/agent-ticket
+codex plugin add ticket@jenslaufer
 ```
 
 ## Why

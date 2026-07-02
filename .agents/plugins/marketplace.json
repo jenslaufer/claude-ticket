@@ -1,0 +1,20 @@
+{
+  "name": "jenslaufer",
+  "interface": {
+    "displayName": "Jens Laufer's Agent Plugins"
+  },
+  "plugins": [
+    {
+      "name": "ticket",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ticket"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

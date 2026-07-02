@@ -1,0 +1,18 @@
+{
+  "name": "ticket",
+  "version": "0.5.0",
+  "description": "Turn a rough idea into a precise, well-scoped ticket and file it into a real ticketing system (GitHub Issues, Jira, GitLab, or plain Markdown) through a pluggable provider layer.",
+  "author": {
+    "name": "Jens Laufer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Ticket",
+    "shortDescription": "Precise tickets, filed into real ticketing systems.",
+    "longDescription": "Generates a platform-neutral, precision-focused ticket (context, scope in/out, Given/When/Then acceptance criteria, verification) from a rough idea and files it via provider adapters: GitHub Issues, Jira, GitLab, or plain Markdown. Includes dry-run previews, duplicate detection, a read-only setup check, and an optional quality-gate rubric.",
+    "developerName": "Jens Laufer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Create a ticket for: "
+  }
+}
