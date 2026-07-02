@@ -56,14 +56,15 @@ The Canonical Ticket Model is the contract between them.
 
 ## Add your own ticket system
 
-One Python file: `skills/ticket/scripts/providers/<name>.py` exposing
-`emit(ticket: dict, opts: dict) -> dict`. Standard library only. The dispatcher discovers it by
+One JavaScript file: `skills/ticket/scripts/providers/<name>.js` exporting
+`async emit(ticket, opts)`. Node built-ins only. The dispatcher discovers it by
 filename — no core change. Contract and worked examples:
 [`skills/ticket/references/adapters.md`](skills/ticket/references/adapters.md).
 
 ## Requirements
 
-- Python 3.10+ on PATH (standard library only — no pip installs)
+- Node.js >= 18 on PATH (built-ins only — no npm installs). Without Node, the skill degrades
+  gracefully: markdown and GitHub still work (model-rendered / via `gh`); only Jira needs Node.
 - Works on Linux, macOS, and Windows
 
 ## License

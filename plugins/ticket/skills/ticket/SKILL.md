@@ -9,10 +9,10 @@ Two strictly separated layers:
 
 1. **Generator** — turns a rough idea into a platform-neutral **Canonical Ticket Model** (JSON).
    It knows nothing about ticket systems.
-2. **Provider layer** — `scripts/ticket_emit.py` dispatches the model to an adapter
+2. **Provider layer** — `scripts/ticket_emit.js` dispatches the model to an adapter
    (`markdown`, `github`, `jira`, …). Adapters know nothing about ticket writing.
 
-All scripts are Python 3 standard library only — no bash, jq, curl, or pip installs.
+All scripts are Node.js (>= 18) built-ins only — no bash, jq, curl, or npm installs.
 
 ## Arguments
 
@@ -53,13 +53,21 @@ provider yourself. If no system is mentioned, use `markdown` and say so.
 5. **Emit.** Save the model to a temp file, then:
 
    ```
-   python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/scripts/ticket_emit.py" \
+   node "${CLAUDE_PLUGIN_ROOT}/skills/ticket/scripts/ticket_emit.js" \
      --provider <name> [--dry-run] [--repo OWNER/NAME] [--out FILE] < ticket.json
    ```
 
    - Success prints one JSON line: `{"provider": "...", "ref": "...", "url": "..."}` — report the URL.
    - `"deduped": true` means an open ticket with the same title already exists; report it, don't refile.
    - Non-zero exit = real failure (message on stderr). Report it verbatim; never claim success.
+
+   **If `node` is not on PATH** ("command not found"), degrade gracefully instead of stopping:
+   - `markdown`: render the ticket yourself, strictly following the template in
+     `references/ticket-model.md` and the section order used by `scripts/lib/render.js`.
+   - `github`: search for a duplicate (`gh issue list --search "<title> in:title" --state open`),
+     then build the `gh issue create` call yourself: `--title`, body via `--body-file` (write the
+     rendered body to a temp file), `--label type:<t>`, `--label priority:<p>`, one `--label` per label.
+   - `jira`: requires Node — tell the user plainly that the Jira provider needs Node.js >= 18.
 
 6. **Report.** Show the ticket (or its URL), the provider used, and any assumptions you made
    (inferred type/priority, chosen provider).
@@ -77,5 +85,5 @@ variable or login is missing. Never invent credentials; never echo secrets.
 
 ## Adding a ticket system
 
-One file: `scripts/providers/<name>.py` exposing `emit(ticket: dict, opts: dict) -> dict`.
+One file: `scripts/providers/<name>.js` exporting `async emit(ticket, opts)`.
 See `references/adapters.md` for the contract. No core change needed — discovery is by filename.

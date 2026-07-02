@@ -75,7 +75,7 @@ It's a Claude Code plugin, open source, MIT:
 ```
 
 The repo is at [github.com/jenslaufer/claude-ticket](https://github.com/jenslaufer/claude-ticket).
-Adapters are one Python file each — if your team lives in Linear or GitLab, the contract is
+Adapters are one JavaScript file each — if your team lives in Linear or GitLab, the contract is
 documented and small.
 
 The agents will keep getting better at writing code. The scarce skill is now upstream: saying what

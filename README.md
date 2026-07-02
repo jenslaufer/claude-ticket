@@ -20,6 +20,14 @@ hard part (precision) from the plumbing (which ticket system it lands in).
 
 Full documentation: [plugins/ticket/README.md](plugins/ticket/README.md)
 
+## Development
+
+```
+node --test tests/*.test.js
+```
+
+No dependencies — the plugin and its tests use Node.js (>= 18) built-ins only.
+
 ## License
 
 MIT
