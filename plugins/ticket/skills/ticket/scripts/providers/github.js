@@ -13,9 +13,12 @@ function gh(args, input) {
   return spawnSync('gh', args, { input, encoding: 'utf8', windowsHide: true });
 }
 
-function listIssues(title, repo) {
-  const args = ['issue', 'list', '--search', `${title} in:title`, '--state', 'open',
-                '--limit', '10', '--json', 'number,title,url'];
+// Dedupe via the plain list API, not --search: GitHub's search index lags behind
+// issue creation by seconds to minutes, so a just-filed duplicate would slip through.
+// The list endpoint is real-time; exact-title matching happens client-side.
+function listIssues(repo) {
+  const args = ['issue', 'list', '--state', 'open', '--limit', '100',
+                '--json', 'number,title,url'];
   if (repo) args.push('--repo', repo);
   const r = gh(args);
   if (r.error || r.status !== 0) return [];
@@ -45,7 +48,7 @@ async function emit(ticket, opts) {
   const probe = gh(['--version']);
   if (probe.error) throw new Error('gh CLI not found on PATH');
 
-  const dup = listIssues(title, opts.repo).find((i) => i.title === title);
+  const dup = listIssues(opts.repo).find((i) => i.title === title);
   if (dup) {
     process.stderr.write(
       `github: an open issue with this title already exists: ${dup.url} (skipping create)\n`);
