@@ -67,7 +67,7 @@ checklist catches the ambiguity you stopped seeing.
 It's an agent plugin — host-agnostic, open source, MIT. In Claude Code:
 
 ```
-/plugin marketplace add jenslaufer/agent-ticket
+/plugin marketplace add jenslaufer/ticket-forge
 /plugin install ticket@jenslaufer
 
 /ticket users should be able to reset their password by email
@@ -75,11 +75,11 @@ It's an agent plugin — host-agnostic, open source, MIT. In Claude Code:
 ```
 
 In OpenAI Codex, the same plugin installs via
-`codex plugin marketplace add jenslaufer/agent-ticket` and `codex plugin add ticket@jenslaufer` —
+`codex plugin marketplace add jenslaufer/ticket-forge` and `codex plugin add ticket@jenslaufer` —
 one repo, one skill, two hosts. The precision layer doesn't care which agent runs it, just as it
 doesn't care which tracker it files into.
 
-The repo is at [github.com/jenslaufer/agent-ticket](https://github.com/jenslaufer/agent-ticket).
+The repo is at [github.com/jenslaufer/ticket-forge](https://github.com/jenslaufer/ticket-forge).
 Adapters are one JavaScript file each — if your team lives in Linear or GitLab, the contract is
 documented and small.
 

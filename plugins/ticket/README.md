@@ -9,6 +9,9 @@ precisely enough that an agent (or a human) can execute without guessing. A vagu
 buffered by a developer who asked questions. An agent executes the ambiguity. This plugin makes the
 ticket the specification.
 
+The ticket itself is executor-agnostic: it carries context and the why for humans, and explicit scope
+boundaries for agents. Your agent writes it; a human team or another agent can execute it.
+
 ## What it does
 
 ```
@@ -31,14 +34,14 @@ The Canonical Ticket Model is the contract between them.
 Claude Code:
 
 ```
-/plugin marketplace add jenslaufer/agent-ticket
+/plugin marketplace add jenslaufer/ticket-forge
 /plugin install ticket@jenslaufer
 ```
 
 Codex:
 
 ```
-codex plugin marketplace add jenslaufer/agent-ticket
+codex plugin marketplace add jenslaufer/ticket-forge
 codex plugin add ticket@jenslaufer
 ```
 
@@ -94,7 +97,7 @@ Working in a checkout of this repo, paste this prompt into your coding agent and
 replace `<SYSTEM>` with your tracker (Linear, GitLab, Azure DevOps, ...):
 
 ```text
-Add a <SYSTEM> adapter to the agent-ticket plugin in this repo.
+Add a <SYSTEM> adapter to the ticket-forge plugin in this repo.
 
 1. Read plugins/ticket/skills/ticket/references/adapters.md — it defines the
    adapter contract. Follow it exactly.

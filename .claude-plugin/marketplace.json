@@ -14,7 +14,7 @@
       },
       "source": "./plugins/ticket",
       "category": "development",
-      "homepage": "https://github.com/jenslaufer/agent-ticket"
+      "homepage": "https://github.com/jenslaufer/ticket-forge"
     }
   ]
 }

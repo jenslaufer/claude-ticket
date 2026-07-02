@@ -1,4 +1,4 @@
-# agent-ticket
+# ticket-forge
 
 Agent-plugin marketplace with one plugin: **[ticket](plugins/ticket/)** — turn a rough idea
 into a precise, well-scoped ticket and file it into a real ticketing system (GitHub Issues, Jira,
@@ -12,14 +12,14 @@ The core is plain Node.js — no host-specific code paths.
 Claude Code:
 
 ```
-/plugin marketplace add jenslaufer/agent-ticket
+/plugin marketplace add jenslaufer/ticket-forge
 /plugin install ticket@jenslaufer
 ```
 
 Codex:
 
 ```
-codex plugin marketplace add jenslaufer/agent-ticket
+codex plugin marketplace add jenslaufer/ticket-forge
 codex plugin add ticket@jenslaufer
 ```
 
@@ -29,6 +29,9 @@ Coding agents made writing code cheap. The bottleneck moved upstream: turning in
 specification precise enough to execute without guessing. Tickets are the entry point of that stage —
 for humans and agents alike. This plugin treats the ticket as the specification and separates the
 hard part (precision) from the plumbing (which ticket system it lands in).
+
+The ticket itself is executor-agnostic: it carries context and the why for humans, and explicit scope
+boundaries for agents. Your agent writes it; a human team or another agent can execute it.
 
 Full documentation: [plugins/ticket/README.md](plugins/ticket/README.md)
 
