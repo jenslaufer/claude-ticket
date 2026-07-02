@@ -18,4 +18,8 @@ async function emit(ticket, opts) {
   return { preview: body };
 }
 
-module.exports = { emit };
+async function check() {
+  return { ok: true, detail: 'no configuration required' };
+}
+
+module.exports = { emit, check };

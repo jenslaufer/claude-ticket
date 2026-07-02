@@ -41,8 +41,8 @@ function runGithub(ghStub, extraEnv = {}) {
   });
 }
 
-function runWithFetch(provider, routes, env) {
-  return run(['--provider', provider], {
+function runWithFetch(provider, routes, env, extraArgs = []) {
+  return run([...extraArgs, '--provider', provider], {
     NODE_OPTIONS: `--require ${FETCH_STUB}`,
     FETCH_STUB: JSON.stringify(routes),
     ...env,
@@ -168,6 +168,101 @@ test('jira: HTTP error fails closed with status code', () => {
   ], JIRA_ENV);
   assert.equal(r.status, 1);
   assert.match(r.stderr, /jira create failed \(400\)/);
+});
+
+// --- --check (read-only setup verification) ---
+
+test('check: markdown needs nothing', () => {
+  const r = run(['--check', '--provider', 'markdown'], {});
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(JSON.parse(r.stdout),
+    { provider: 'markdown', ok: true, detail: 'no configuration required' });
+});
+
+test('check: github ok when gh is authenticated', () => {
+  const r = run(['--check', '--provider', 'github'], {
+    PATH: `${STUB_BIN}${path.delimiter}${process.env.PATH}`,
+    GH_STUB: JSON.stringify({}),
+  });
+  assert.equal(r.status, 0, r.stderr);
+  const res = JSON.parse(r.stdout);
+  assert.equal(res.ok, true);
+  assert.match(res.detail, /stubuser/);
+});
+
+test('check: github not authenticated fails with gh auth login hint', () => {
+  const r = run(['--check', '--provider', 'github'], {
+    PATH: `${STUB_BIN}${path.delimiter}${process.env.PATH}`,
+    GH_STUB: JSON.stringify({ auth: 'fail' }),
+  });
+  assert.equal(r.status, 1);
+  const res = JSON.parse(r.stdout);
+  assert.equal(res.ok, false);
+  assert.match(res.detail, /gh auth login/);
+});
+
+test('check: gitlab ok names user and project', () => {
+  const r = runWithFetch('gitlab', [
+    { method: 'GET', url: '/api/v4/user', status: 200, body: { username: 'stubuser' } },
+    { method: 'GET', url: '/api/v4/projects/group%2Frepo', status: 200,
+      body: { path_with_namespace: 'group/repo' } },
+  ], GITLAB_ENV, ['--check']);
+  assert.equal(r.status, 0, r.stderr);
+  const res = JSON.parse(r.stdout);
+  assert.equal(res.ok, true);
+  assert.match(res.detail, /stubuser.*group\/repo/);
+});
+
+test('check: gitlab bad token names GITLAB_TOKEN', () => {
+  const r = runWithFetch('gitlab', [
+    { method: 'GET', url: '/api/v4/user', status: 401, body: {} },
+  ], GITLAB_ENV, ['--check']);
+  assert.equal(r.status, 1);
+  const res = JSON.parse(r.stdout);
+  assert.equal(res.ok, false);
+  assert.match(res.detail, /auth failed \(401\).*GITLAB_TOKEN/);
+});
+
+test('check: gitlab distinguishes auth ok from project not accessible', () => {
+  const r = runWithFetch('gitlab', [
+    { method: 'GET', url: '/api/v4/user', status: 200, body: { username: 'stubuser' } },
+    { method: 'GET', url: '/api/v4/projects/group%2Frepo', status: 404, body: {} },
+  ], GITLAB_ENV, ['--check']);
+  assert.equal(r.status, 1);
+  const res = JSON.parse(r.stdout);
+  assert.match(res.detail, /auth ok as stubuser.*not accessible \(404\).*GITLAB_PROJECT/);
+});
+
+test('check: jira ok names account and project', () => {
+  const r = runWithFetch('jira', [
+    { method: 'GET', url: '/rest/api/3/myself', status: 200, body: { displayName: 'Stub User' } },
+    { method: 'GET', url: '/rest/api/3/project/ABC', status: 200, body: { key: 'ABC', name: 'Alpha' } },
+  ], JIRA_ENV, ['--check']);
+  assert.equal(r.status, 0, r.stderr);
+  const res = JSON.parse(r.stdout);
+  assert.equal(res.ok, true);
+  assert.match(res.detail, /Stub User.*ABC: Alpha/);
+});
+
+test('check: jira bad credentials name JIRA_EMAIL and JIRA_API_TOKEN', () => {
+  const r = runWithFetch('jira', [
+    { method: 'GET', url: '/rest/api/3/myself', status: 401, body: {} },
+  ], JIRA_ENV, ['--check']);
+  assert.equal(r.status, 1);
+  assert.match(JSON.parse(r.stdout).detail, /auth failed \(401\).*JIRA_EMAIL and JIRA_API_TOKEN/);
+});
+
+test('check: jira missing env fails closed naming the variable', () => {
+  const r = run(['--check', '--provider', 'jira'],
+    { JIRA_BASE_URL: '', JIRA_EMAIL: '', JIRA_API_TOKEN: '', JIRA_PROJECT_KEY: '' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /JIRA_BASE_URL not set/);
+});
+
+test('check: unknown provider exits 2', () => {
+  const r = run(['--check', '--provider', 'linear'], {});
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /unknown provider/);
 });
 
 test('jira: success response without key fails closed', () => {

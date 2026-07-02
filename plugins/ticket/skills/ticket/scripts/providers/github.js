@@ -80,4 +80,20 @@ async function emit(ticket, opts) {
   return { provider: 'github', ref: m ? m[1] : '', url };
 }
 
-module.exports = { emit };
+// Read-only: verifies the gh CLI is present and authenticated. Creates nothing.
+async function check() {
+  const probe = gh(['--version']);
+  if (probe.error) {
+    return { ok: false, detail: 'gh CLI not found on PATH — install https://cli.github.com and run: gh auth login' };
+  }
+  const r = gh(['auth', 'status']);
+  const out = `${r.stdout || ''}${r.stderr || ''}`;
+  if (r.status !== 0) {
+    const first = out.trim().split('\n')[0] || 'not authenticated';
+    return { ok: false, detail: `gh is installed but not authenticated — run: gh auth login (${first})` };
+  }
+  const account = out.split('\n').find((l) => l.toLowerCase().includes('account')) || 'authenticated';
+  return { ok: true, detail: account.trim() };
+}
+
+module.exports = { emit, check };

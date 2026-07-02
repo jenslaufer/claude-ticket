@@ -55,6 +55,22 @@ The Canonical Ticket Model is the contract between them.
 | `jira` | env vars: `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN`, `JIRA_PROJECT_KEY` |
 | `gitlab` | env vars: `GITLAB_TOKEN`, `GITLAB_PROJECT`; optional `GITLAB_BASE_URL` (self-managed) |
 
+### First-time setup
+
+Token sources: GitHub — `gh auth login`; Jira — [API token](https://id.atlassian.com/manage-profile/security/api-tokens)
+(`JIRA_BASE_URL` = `https://<site>.atlassian.net`, `JIRA_PROJECT_KEY` = the `ABC` in `ABC-123`);
+GitLab — personal access token with `api` scope (`GITLAB_PROJECT` = `group/repo`).
+
+Then verify without creating anything:
+
+```
+node skills/ticket/scripts/ticket_emit.js --check --provider jira
+```
+
+The check is strictly read-only and tells you exactly what to fix
+("auth ok, but project not found — check JIRA_PROJECT_KEY"). In Claude Code, just say
+`/ticket setup jira` — the skill walks you through it and runs the check for you.
+
 ## Add your own ticket system
 
 One JavaScript file: `skills/ticket/scripts/providers/<name>.js` exporting
@@ -87,9 +103,11 @@ Add a <SYSTEM> adapter to the claude-ticket plugin in this repo.
      {provider, ref, url, deduped: true} instead of filing twice.
    - On success return {provider: "<system>", ref: "<id>", url: "<url>"}.
      Throw on any failure — never fake success.
-4. Add tests to tests/emit.test.js: the --list output, the dry-run payload shape,
+4. Optionally export async check(opts) -> {ok, detail}: a strictly read-only
+   credential/target verification for --check (see adapters.md).
+5. Add tests to tests/emit.test.js: the --list output, the dry-run payload shape,
    and the missing-env failure naming the variable.
-5. Run node --test tests/*.test.js — every test must pass.
+6. Run node --test tests/*.test.js — every test must pass.
 ```
 
 The generated adapter needs no registration: the dispatcher picks it up by filename.

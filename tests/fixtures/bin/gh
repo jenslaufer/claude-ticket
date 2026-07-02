@@ -4,7 +4,8 @@
 //   { list: [...],            // JSON printed for `gh issue list`
 //     createUrl: "https://…", // stdout of a successful `gh issue create`
 //     failLabels: true,       // first create WITH --label fails with a label error (retry path)
-//     failCreate: "msg" }     // any create fails with this message
+//     failCreate: "msg",      // any create fails with this message
+//     auth: "fail" }          // `gh auth status` exits non-zero (default: logged in as stubuser)
 // POSIX-only (shebang script); Windows would need a .cmd shim.
 'use strict';
 const cfg = JSON.parse(process.env.GH_STUB || '{}');
@@ -16,6 +17,15 @@ if (args[0] === '--version') {
 }
 
 const cmd = args.slice(0, 2).join(' ');
+
+if (cmd === 'auth status') {
+  if (cfg.auth === 'fail') {
+    process.stderr.write('You are not logged into any GitHub hosts.\n');
+    process.exit(1);
+  }
+  console.log('github.com: Logged in to github.com account stubuser (oauth_token)');
+  process.exit(0);
+}
 
 if (cmd === 'issue list') {
   console.log(JSON.stringify(cfg.list || []));

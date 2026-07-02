@@ -24,6 +24,7 @@ Parse these from the user's request / `$ARGUMENTS`; everything else is the ticke
 | `--repo OWNER/NAME` | GitHub target repo (github provider only) |
 | `--out FILE` | Write the markdown ticket to FILE (markdown provider only) |
 | `--dry-run` | Render the exact payload/command, write nothing external |
+| `--check` | Read-only setup check: verify credentials and target, create nothing |
 | `--critic` | Quality-gate the ticket with the `ticket-critic` agent before filing |
 
 If the user names a system without a flag ("file this in Jira", "as a GitHub issue"), map it to the
@@ -83,6 +84,31 @@ provider yourself. If no system is mentioned, use `markdown` and say so.
 
 If a provider fails on missing config, relay the adapter's error and tell the user exactly which
 variable or login is missing. Never invent credentials; never echo secrets.
+
+## Setting up a provider
+
+Run this flow when the user asks to set one up ("setup jira") or when any emit fails on
+missing/invalid config:
+
+1. **Name the required configuration** (table above) and where to get it:
+   - `github`: run `gh auth login` (install: https://cli.github.com)
+   - `jira`: API token from https://id.atlassian.com/manage-profile/security/api-tokens;
+     `JIRA_BASE_URL` is `https://<site>.atlassian.net`; `JIRA_PROJECT_KEY` is the prefix of the
+     project's issue keys (e.g. `ABC` in `ABC-123`)
+   - `gitlab`: personal access token with `api` scope (User Settings → Access Tokens);
+     `GITLAB_PROJECT` is the path (`group/repo`) or numeric id; `GITLAB_BASE_URL` only for
+     self-managed instances
+2. **Let the user set the env vars themselves** (shell profile, direnv, secret manager).
+   Never write credential files and never echo token values.
+3. **Verify read-only:**
+
+   ```
+   node "${CLAUDE_PLUGIN_ROOT}/skills/ticket/scripts/ticket_emit.js" --check --provider <name>
+   ```
+
+   The check creates nothing. It prints `{"provider","ok","detail"}`; exit 0 means verified.
+4. **Report the detail line.** On `ok: false` it names exactly which credential or variable to fix
+   (e.g. "auth ok, but project not found — check JIRA_PROJECT_KEY"). Fix, then re-run the check.
 
 ## Adding a ticket system
 

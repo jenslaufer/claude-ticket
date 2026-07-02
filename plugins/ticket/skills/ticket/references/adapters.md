@@ -13,6 +13,16 @@ async function emit(ticket, opts) { ... }
 module.exports = { emit };
 ```
 
+Optionally, an adapter also exports a **read-only setup check** used by `--check`:
+
+```js
+async function check(opts) { ... }   // -> {ok: boolean, detail: string} — MUST NOT create anything
+```
+
+It verifies credentials and the target (e.g. `GET /user`, then the project) and its `detail`
+names exactly which variable or credential to fix. Adapters without `check` report
+"no check implemented" on `--check`.
+
 The dispatcher `scripts/ticket_emit.js` discovers adapters by filename, reads the ticket JSON from
 stdin, and calls `emit`. Everything is **Node.js >= 18 built-ins only** — no npm installs, no shell
 tools (`jq`, `curl`, `bash`). This keeps the plugin platform-agnostic (Linux, macOS, Windows) with a

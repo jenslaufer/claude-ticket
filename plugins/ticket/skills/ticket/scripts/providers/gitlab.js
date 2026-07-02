@@ -69,4 +69,26 @@ async function emit(ticket, opts) {
   return { provider: 'gitlab', ref: String(out.iid), url: out.web_url };
 }
 
-module.exports = { emit };
+// Read-only: verifies the token (GET /user), then access to the target project.
+// Distinguishes "auth failed" from "auth ok, project not accessible". Creates nothing.
+async function check() {
+  const token = requireEnv('GITLAB_TOKEN');
+  const rawProject = requireEnv('GITLAB_PROJECT');
+  const project = encodeURIComponent(rawProject);
+  const base = (process.env.GITLAB_BASE_URL || 'https://gitlab.com').replace(/\/+$/, '');
+  const headers = { 'PRIVATE-TOKEN': token };
+
+  const user = await fetch(`${base}/api/v4/user`, { headers });
+  if (!user.ok) return { ok: false, detail: `auth failed (${user.status}) — check GITLAB_TOKEN` };
+  const u = await user.json();
+
+  const proj = await fetch(`${base}/api/v4/projects/${project}`, { headers });
+  if (!proj.ok) {
+    return { ok: false,
+             detail: `auth ok as ${u.username}, but project ${rawProject} not accessible (${proj.status}) — check GITLAB_PROJECT` };
+  }
+  const p = await proj.json();
+  return { ok: true, detail: `authenticated as ${u.username}; project ${p.path_with_namespace}` };
+}
+
+module.exports = { emit, check };

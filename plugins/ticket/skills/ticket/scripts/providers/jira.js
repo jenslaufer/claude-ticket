@@ -84,4 +84,28 @@ async function emit(ticket, opts) {
   return { provider: 'jira', ref: out.key, url: `${base}/browse/${out.key}` };
 }
 
-module.exports = { emit };
+// Read-only: verifies credentials (GET /myself), then access to the target project.
+// Distinguishes "auth failed" from "auth ok, project not found". Creates nothing.
+async function check() {
+  const base = requireEnv('JIRA_BASE_URL').replace(/\/+$/, '');
+  const email = requireEnv('JIRA_EMAIL');
+  const token = requireEnv('JIRA_API_TOKEN');
+  const project = requireEnv('JIRA_PROJECT_KEY');
+  const auth = Buffer.from(`${email}:${token}`).toString('base64');
+  const headers = { Authorization: `Basic ${auth}`, Accept: 'application/json' };
+
+  const me = await fetch(`${base}/rest/api/3/myself`, { headers });
+  if (!me.ok) return { ok: false, detail: `auth failed (${me.status}) — check JIRA_EMAIL and JIRA_API_TOKEN` };
+  const acct = await me.json();
+  const who = acct.displayName || email;
+
+  const proj = await fetch(`${base}/rest/api/3/project/${project}`, { headers });
+  if (!proj.ok) {
+    return { ok: false,
+             detail: `auth ok as ${who}, but project ${project} not found (${proj.status}) — check JIRA_PROJECT_KEY` };
+  }
+  const p = await proj.json();
+  return { ok: true, detail: `authenticated as ${who}; project ${p.key}: ${p.name}` };
+}
+
+module.exports = { emit, check };
