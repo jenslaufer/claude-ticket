@@ -1,6 +1,6 @@
 ---
 name: ticket
-description: Turn a rough idea into a precise, well-scoped ticket and file it into a real ticketing system (GitHub Issues, Jira, or plain Markdown) through a pluggable provider layer. Use when the user wants to create, write, file, or push a ticket/issue — "create a ticket for X", "file this as a GitHub issue", "ticket anlegen", "issue erstellen". Supports --critic for a quality-gated loop and --dry-run for a no-write preview.
+description: Turn a rough idea into a precise, well-scoped ticket and file it into a real ticketing system (GitHub Issues, Jira, GitLab, or plain Markdown) through a pluggable provider layer. Use when the user wants to create, write, file, or push a ticket/issue — "create a ticket for X", "file this as a GitHub issue", "ticket anlegen", "issue erstellen". Supports --critic for a quality-gated loop and --dry-run for a no-write preview.
 ---
 
 # ticket — precise tickets, filed into real systems
