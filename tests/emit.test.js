@@ -58,9 +58,9 @@ test('github: --dry-run previews the exact command and writes nothing', () => {
 
 test('jira: --dry-run previews the REST payload with type/priority mapping', () => {
   const r = run(['--provider', 'jira', '--dry-run'],
-    { env: { JIRA_BASE_URL: 'https://ex.atlassian.net', JIRA_PROJECT_KEY: 'ABC' } });
+    { env: { JIRA_BASE_URL: 'http://stub.local', JIRA_PROJECT_KEY: 'ABC' } });
   assert.equal(r.status, 0);
-  assert.ok(r.stdout.includes('[jira dry-run] POST https://ex.atlassian.net/rest/api/3/issue'));
+  assert.ok(r.stdout.includes('[jira dry-run] POST http://stub.local/rest/api/3/issue'));
   const payload = JSON.parse(r.stdout.split('\n').slice(1).join('\n'));
   assert.equal(payload.fields.project.key, 'ABC');
   assert.equal(payload.fields.issuetype.name, 'Story');

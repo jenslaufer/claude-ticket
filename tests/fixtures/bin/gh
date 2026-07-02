@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+// Fake gh CLI for tests. Prepend tests/fixtures/bin to PATH so github.js resolves this
+// instead of the real binary. Behavior is controlled via the GH_STUB env var (JSON):
+//   { list: [...],            // JSON printed for `gh issue list`
+//     createUrl: "https://…", // stdout of a successful `gh issue create`
+//     failLabels: true,       // first create WITH --label fails with a label error (retry path)
+//     failCreate: "msg" }     // any create fails with this message
+// POSIX-only (shebang script); Windows would need a .cmd shim.
+'use strict';
+const cfg = JSON.parse(process.env.GH_STUB || '{}');
+const args = process.argv.slice(2);
+
+if (args[0] === '--version') {
+  console.log('gh version 0.0.0-stub');
+  process.exit(0);
+}
+
+const cmd = args.slice(0, 2).join(' ');
+
+if (cmd === 'issue list') {
+  console.log(JSON.stringify(cfg.list || []));
+  process.exit(0);
+}
+
+if (cmd === 'issue create') {
+  if (cfg.failLabels && args.includes('--label')) {
+    process.stderr.write('could not add label: "type:feature" not found\n');
+    process.exit(1);
+  }
+  if (cfg.failCreate) {
+    process.stderr.write(cfg.failCreate + '\n');
+    process.exit(1);
+  }
+  console.log(cfg.createUrl || 'https://github.com/owner/repo/issues/99');
+  process.exit(0);
+}
+
+process.stderr.write(`gh-stub: unexpected command: ${args.join(' ')}\n`);
+process.exit(1);
