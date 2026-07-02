@@ -1,0 +1,8 @@
+{
+  "name": "ticket",
+  "description": "Turn a rough idea into a precise, well-scoped ticket and file it into a real ticketing system (GitHub Issues, Jira, ...) through a pluggable provider layer. Use when the user wants to create, file, or push an issue/ticket into an actual system.",
+  "author": {
+    "name": "Jens Laufer"
+  },
+  "version": "0.1.0"
+}
