@@ -1,6 +1,6 @@
 # ticket-forge
 
-Agent-plugin marketplace with one plugin: **[ticket](plugins/ticket/)** — turn a rough idea
+Home of the **[ticket](plugins/ticket/)** agent plugin — turn a rough idea
 into a precise, well-scoped ticket and file it into a real ticketing system (GitHub Issues, Jira,
 GitLab, Markdown) through a pluggable provider layer.
 
@@ -9,10 +9,10 @@ The core is plain Node.js — no host-specific code paths.
 
 ## Install
 
-Claude Code:
+Claude Code (via the [jenslaufer/plugins](https://github.com/jenslaufer/plugins) marketplace):
 
 ```
-/plugin marketplace add jenslaufer/ticket-forge
+/plugin marketplace add jenslaufer/plugins
 /plugin install ticket@jenslaufer
 ```
 
